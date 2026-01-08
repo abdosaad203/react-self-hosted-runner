@@ -1,25 +1,31 @@
-name: React CI Pipeline
+name: CI-CD Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  build:
-    name: Build React App
+  ci:
     runs-on: linux-vm
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Build Docker image
         run: |
-          cd my-app
-          npm install
+          docker build -t react-app:latest ./my-app
 
-      - name: Build project
+  cd:
+    runs-on: linux-vm
+    needs: ci
+    steps:
+      - name: Stop old container
         run: |
-          cd my-app
-          npm run build
+          docker stop react-app || true
+          docker rm react-app || true
+
+      - name: Run new container
+        run: |
+          docker run -d \
+            --name react-app \
+            -p 3000:3000 \
+            react-app:latest
