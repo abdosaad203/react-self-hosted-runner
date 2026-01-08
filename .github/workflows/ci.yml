@@ -1,0 +1,25 @@
+name: React CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build React App
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          cd my-app
+          npm install
+
+      - name: Build project
+        run: |
+          cd my-app
+          npm run build
