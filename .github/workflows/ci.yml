@@ -1,31 +1,19 @@
-name: CI-CD Pipeline
+name: React App CI
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  ci:
-    runs-on: linux-vm
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build Docker image
-        run: |
-          docker build -t react-app:latest ./my-app
-
-  cd:
-    runs-on: linux-vm
-    needs: ci
-    steps:
-      - name: Stop old container
-        run: |
-          docker stop react-app || true
-          docker rm react-app || true
-
-      - name: Run new container
-        run: |
-          docker run -d \
-            --name react-app \
-            -p 3000:3000 \
-            react-app:latest
+  call-reusable-workflow:
+    uses: abdosaad203/github-reusable-workflows/.github/workflows/node-ci-docker.yml@main
+    with:
+      node_version: "18"
+      unit_test: false
+      lint_phase: false
+      docker_registry: docker.io
+      docker_username: abdosaad
+      docker_image_name: react-app
+      docker_image_tag: latest
+    secrets:
+      docker_password: ${{ secrets.DOCKER_PASSWORD }}
